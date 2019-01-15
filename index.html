@@ -5,9 +5,9 @@
   <script>
   
   function myFirstComponent(fn, ln, ag) {
-    var firstName = fn;
-    var lastName = ln;
-    var age = ag;
+    this.firstName = fn;
+    this.lastName = ln;
+    this.age = ag;
   }
 
   myFirstComponent.prototype.write = function() {
