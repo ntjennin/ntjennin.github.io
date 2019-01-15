@@ -11,7 +11,7 @@
   }
 
   myFirstComponent.prototype.write = function() {
-      return "My first name is " + firstName + " " + lastName + " and I am " + age + " years old.";
+      return "My first name is " + this.firstName + " " + this.lastName + " and I am " + this.age + " years old.";
   }
 
   var dood = new myFirstComponent("dood", "brodia", 35);
