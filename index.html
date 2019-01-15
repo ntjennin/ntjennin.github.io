@@ -4,8 +4,19 @@
 <body>
   <script>
   
-  document.write("<h1>Nathaniel Jennings</h1>");
-  document.write("<ul><li>Owner</li><li>33</li></ul>");
+  function myFirstComponent(fn, ln, ag) {
+    var firstName = fn;
+    var lastName = ln;
+    var age = ag;
+  }
+
+  myFirstComponent.prototype.write = function() {
+      return "My first name is " + firstName + " " + lastName + " and I am " + age + " years old.";
+  }
+
+  var dood = new myFirstComponent("dood", "brodia", 35);
+
+  document.write(dood.write());
   
   </script>
 </body>
