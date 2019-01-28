@@ -1,22 +1,60 @@
 <html>
 <header>
+  <style>
+  .box {
+  display:block;
+  width:100px;
+  height:100px;
+}
+
+div:hover {
+  cursor:pointer;
+}
+
+  
+  
+  </style>
 </header>
 <body>
   <script>
   
-  function myFirstComponent(fn, ln, ag) {
-    this.firstName = fn;
-    this.lastName = ln;
-    this.age = ag;
+ var dataset = [
+  {
+    color:"red",
+    message:"I am a cool message!"
+  },
+  {
+    color:"blue",
+    message:"Living on the planet that is cool and blue as me!"
+  },
+  {
+    color:"green",
+    message:"The grass is always greener"
   }
+]
 
-  myFirstComponent.prototype.write = function() {
-      return "My first name is " + this.firstName + " " + this.lastName + " and I am " + this.age + " years old.";
+function createMessages(json) {
+  for(var i = 0; i < json.length; i++) {
+    var currentItem = json[i];
+    var message = createMessage(currentItem["color"], currentItem["message"]);
+    document.write(message);
   }
+}
 
-  var dood = new myFirstComponent("dood", "brodia", 35);
+function showMessage(box) {
+  
+  if(box.style.color != "white") {
+    box.style.color = "white";
+  } else {
+    box.style.color = box.style.backgroundColor;
+  }
+}
 
-  document.write(dood.write());
+function createMessage(color, message) {
+  return "<div onclick='showMessage(this)' class='box' style='color: " + color + ";background-color:" + color + ";'>" + message + "</div>";
+}
+
+createMessages(dataset);
   
   </script>
 </body>
