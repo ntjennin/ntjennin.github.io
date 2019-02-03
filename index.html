@@ -1,61 +1,126 @@
 <html>
 <header>
-  <style>
-  .box {
-  display:block;
-  width:100px;
-  height:100px;
-}
-
-div:hover {
-  cursor:pointer;
-}
-
-  
-  
-  </style>
+    <style>
+        .player {
+            font-family: sans-serif;
+            width: 300px;
+            height: 180px;
+            border: 1px solid black;
+            display: block;
+            margin: 150px auto;
+            padding: 15px;
+            font-size: 150px;
+            text-align: center;
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            /* iOS Safari */
+            -webkit-user-select: none;
+            /* Safari */
+            -khtml-user-select: none;
+            /* Konqueror HTML */
+            -moz-user-select: none;
+            /* Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge */
+            user-select: none;
+            /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+        }
+    </style>
 </header>
+
 <body>
-  <script>
-  
- var dataset = [
-  {
-    color:"red",
-    message:"I am a cool message!"
-  },
-  {
-    color:"blue",
-    message:"Living on the planet that is cool and blue as me!"
-  },
-  {
-    color:"green",
-    message:"The grass is always greener"
-  }
-]
+    <script>
+        class Game {
 
-function createMessages(json) {
-  for(var i = 0; i < json.length; i++) {
-    var currentItem = json[i];
-    var message = createMessage(currentItem["color"], currentItem["message"]);
-    document.write(message);
-  }
-}
+            constructor() {
+                this.players = [];
+            }
+        }
 
-function showMessage(box) {
-  
-  if(box.style.color != "white") {
-    box.style.color = "white";
-  } else {
-    box.style.color = box.style.backgroundColor;
-  }
-}
+        Game.prototype.won = function() {
+            if (this.players && this.players.length === 2) {
+                if (this.players[0].points === 10) {
+                    return "Player 1 is victorious.";
+                } else if (this.players[1].points === 10) {
+                    return "Player 2 is victorious.";
+                } else {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        };
 
-function createMessage(color, message) {
-  return "<div onclick='showMessage(this)' class='box' style='color: " + color + ";background-color:" + color + ";'>" + message + "</div>";
-}
+        Game.prototype.reset = function() {
+            location.reload();
+        }
 
-createMessages(dataset);
-  
-  </script>
+        Game.prototype.start = function() {
+
+            this.players = [new Player(), new Player()];
+
+            this.drawPlayer();
+            this.drawPlayer();
+
+        };
+
+        Game.prototype.drawPlayer = function() {
+            document.write("<div onclick='game.addPoints(this)' class='player'>0</div>")
+        };
+
+        Game.prototype.createPlayers = function() {
+            this.players = [];
+            this.players.add(new Player());
+            this.players.add(new Player());
+
+            this.drawPlayer();
+            this.drawPlayer();
+        };
+
+        Game.prototype.addPoints = function(player) {
+
+            winner = this.won() || "No winner";
+
+            if (winner === "No winner") {
+
+                var playerElements = document.getElementsByClassName("player");
+                var position = 0;
+
+                while (playerElements[position] != player) {
+                    position += 1;
+                }
+
+                var currentPlayer = this.players[position];
+                currentPlayer.addPoints();
+
+                player.innerHTML = this.players[position].points + "";
+
+                winner = this.won() || "No winner";
+
+                if (winner != "No winner") {
+                    document.write(winner + "<br><button onclick='game.reset()'>Reset</button>");
+                }
+
+            } else {
+                document.write(winner);
+            }
+        };
+
+        class Player {
+
+            constructor() {
+                this.points = 0;
+            }
+        }
+
+        Player.prototype.addPoints = function() {
+            this.points += 1;
+        }
+
+        game = new Game();
+        game.start()
+    </script>
 </body>
+
 </html>
