@@ -19,6 +19,7 @@
 	width: 33%;
 	text-align: center;
 	font-size: 25px;
+	color: white;
 }
 </style>
 </head>
@@ -26,6 +27,7 @@
 <body>
 <table class="game">
   <caption>
+	  <h1>Round 1</h1>
   <p>Click on each box in the top row until it matches the color below itself.</p>
   </caption>
   <tbody>
@@ -45,7 +47,7 @@
 	
 	class Game {
 		constructor() {
-			this.currentRound = 0;
+			this.currentRound = 1;
 			this.RED = "red";
 			this.BLUE = "blue";
 			this.GREEN = "green";
@@ -74,6 +76,11 @@
 				var staticBox = this.getStaticBox(answer.index);
 				
 				staticBox.style.backgroundColor = answer.color;
+				if(answer.color === "black") {
+					staticBox.innerHTML = "Correct";
+				} else {
+					staticBox.innerHTML = "";
+				}
 				
 			}
 		}
@@ -124,6 +131,12 @@
 				
 				staticBox.style.backgroundColor = box.color;
 				
+				if(box.color === "black") {
+					staticBox.innerHTML = "Correct";
+				} else {
+					staticBox.innerHTML = "";
+				}
+				
 			}
 		}
 		
@@ -149,11 +162,16 @@
 		}
 
 		determineMatches() {
+			
+			var matches = 0;
+			
 			for(var i = 0; i < 3; i++) {
 				var top = this.boxes[i];
 				var bottom = this.answers[i];
 				
 				if(top.color === bottom.color) {
+										
+					matches++;
 					top.color = "black";
 					bottom.color = "black";
 					this.drawAnswers(this.answers);
@@ -161,6 +179,24 @@
 				}
 				
 			}
+			
+			var caption = this.gameElement.getElementsByTagName("caption")[0];
+			
+			if(matches === 3 && this.currentRound < 3) {
+				this.answers = this.createRandomAnswers();
+				this.boxes = this.createRandomBoxes(this.answers);
+				this.drawAnswers(this.answers);
+				this.drawBoxes(this.boxes);
+				this.currentRound++;
+				
+				var heading = caption.getElementsByTagName("h1")[0];
+				heading.innerHTML = "Round " + this.currentRound;
+				
+			} else if(matches === 3 && this.currentRound === 3) {
+				var para = caption.getElementsByTagName("p")[0];
+				para.innerHTML = "You win!!!<br/><button onclick='location.reload();'>Reload</button>";
+			}
+			
 		}
 		
 	}
