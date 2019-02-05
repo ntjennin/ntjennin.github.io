@@ -1,126 +1,190 @@
+<!doctype html>
 <html>
-<header>
-    <style>
-        .player {
-            font-family: sans-serif;
-            width: 300px;
-            height: 180px;
-            border: 1px solid black;
-            display: block;
-            margin: 150px auto;
-            padding: 15px;
-            font-size: 150px;
-            text-align: center;
-            cursor: pointer;
-            -webkit-touch-callout: none;
-            /* iOS Safari */
-            -webkit-user-select: none;
-            /* Safari */
-            -khtml-user-select: none;
-            /* Konqueror HTML */
-            -moz-user-select: none;
-            /* Firefox */
-            -ms-user-select: none;
-            /* Internet Explorer/Edge */
-            user-select: none;
-            /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
-        }
-    </style>
-</header>
+<head>
+<meta charset="utf-8">
+<title>Untitled Document</title>
+<style>
+.game {
+	width: 500px;
+	height: 500px;
+	margin: 35px auto;
+	border: 1px solid black;
+	padding: 0;
+	box-sizing: border-box;
+	border-spacing: 0;
+	font-family: sans-serif;
+}
+.game td {
+	margin: 0;
+	width: 33%;
+	text-align: center;
+	font-size: 25px;
+}
+</style>
+</head>
 
 <body>
-    <script>
-        class Game {
+<table class="game">
+  <caption>
+  <p>Click on each box in the top row until it matches the color below itself.</p>
+  </caption>
+  <tbody>
+    <tr>
+      <td onClick="game.changeColor(this, 0)"></td>
+      <td onClick="game.changeColor(this, 1)"></td>
+      <td onClick="game.changeColor(this, 2)"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<script>
+	
+	class Game {
+		constructor() {
+			this.currentRound = 0;
+			this.RED = "red";
+			this.BLUE = "blue";
+			this.GREEN = "green";
+			this.gameElement = document.getElementsByClassName("game")[0];
+			
+			this.answers = this.createRandomAnswers()
+			this.boxes = this.createRandomBoxes(this.answers);
+			
+			this.drawAnswers(this.answers);
+			this.drawBoxes(this.boxes);
+			
+		}
+		
+		getStaticBox(index) {
+			return this.gameElement.getElementsByTagName("tr")[1].getElementsByTagName("td")[index];
+		}
+		
+		getMutableBox(index) {
+			return this.gameElement.getElementsByTagName("tr")[0].getElementsByTagName("td")[index];
+		}
+		
+		drawAnswers(answers) {
+			for(var i = 0; i < answers.length; i++) {
+				var answer = answers[i];
+				
+				var staticBox = this.getStaticBox(answer.index);
+				
+				staticBox.style.backgroundColor = answer.color;
+				
+			}
+		}
+		
+		createRandomAnswers() {
+			
+			var colors = [this.RED, this.BLUE, this.GREEN];
+			var answers = [];
+			
+			for(var i = 0; i < 3; i++) {
+				
+				var chosenColorIndex = Math.floor(Math.random() * colors.length);
+				
+				answers.push(
+					new PlayerBox(colors.splice(chosenColorIndex, 1)[0], i));
+			}
+						
+			return answers;
+			
+		}
+		
+		createRandomBoxes(answers) {
+			
+			var boxes = [];
+			
+			for(var i = 0; i < 3; i++) {
+				var colors = [this.RED, this.BLUE, this.GREEN];
+				
+				var removedColor = colors.indexOf(answers[i].color);
+				
+				colors.splice(removedColor, 1);
+				
+				var chosenColorIndex = Math.floor(Math.random() * colors.length);
+				
+				var chosenColor = colors[chosenColorIndex];				
+				
+				boxes.push(new AnswerBox(chosenColor, i));
+			}
+			
+			return boxes;
+		}
+		
+		drawBoxes(boxes) {
+			for(var i = 0; i < boxes.length; i++) {
+				var box = boxes[i];
+				
+				var staticBox = this.getMutableBox(box.index);
+				
+				staticBox.style.backgroundColor = box.color;
+				
+			}
+		}
+		
+		changeColor(element, index) {
+			
+			var colors = [this.RED, this.GREEN, this.BLUE];
+			
+			if(element.style.backgroundColor === "black") {
+				return;
+			} else {
+			
+				var nextColor = colors.indexOf(element.style.backgroundColor) + 1
 
-            constructor() {
-                this.players = [];
-            }
-        }
+				if(nextColor == colors.length)
+					nextColor = 0;
 
-        Game.prototype.won = function() {
-            if (this.players && this.players.length === 2) {
-                if (this.players[0].points === 10) {
-                    return "Player 1 is victorious.";
-                } else if (this.players[1].points === 10) {
-                    return "Player 2 is victorious.";
-                } else {
-                    return null;
-                }
-            } else {
-                return null;
-            }
-        };
+				this.boxes[index].color = colors[nextColor];
+				element.style.backgroundColor = colors[nextColor];
 
-        Game.prototype.reset = function() {
-            location.reload();
-        }
+				this.determineMatches();
+			}
+			
+		}
 
-        Game.prototype.start = function() {
-
-            this.players = [new Player(), new Player()];
-
-            this.drawPlayer();
-            this.drawPlayer();
-
-        };
-
-        Game.prototype.drawPlayer = function() {
-            document.write("<div onclick='game.addPoints(this)' class='player'>0</div>")
-        };
-
-        Game.prototype.createPlayers = function() {
-            this.players = [];
-            this.players.add(new Player());
-            this.players.add(new Player());
-
-            this.drawPlayer();
-            this.drawPlayer();
-        };
-
-        Game.prototype.addPoints = function(player) {
-
-            winner = this.won() || "No winner";
-
-            if (winner === "No winner") {
-
-                var playerElements = document.getElementsByClassName("player");
-                var position = 0;
-
-                while (playerElements[position] != player) {
-                    position += 1;
-                }
-
-                var currentPlayer = this.players[position];
-                currentPlayer.addPoints();
-
-                player.innerHTML = this.players[position].points + "";
-
-                winner = this.won() || "No winner";
-
-                if (winner != "No winner") {
-                    document.write(winner + "<br><button onclick='game.reset()'>Reset</button>");
-                }
-
-            } else {
-                document.write(winner);
-            }
-        };
-
-        class Player {
-
-            constructor() {
-                this.points = 0;
-            }
-        }
-
-        Player.prototype.addPoints = function() {
-            this.points += 1;
-        }
-
-        game = new Game();
-        game.start()
-    </script>
+		determineMatches() {
+			for(var i = 0; i < 3; i++) {
+				var top = this.boxes[i];
+				var bottom = this.answers[i];
+				
+				if(top.color === bottom.color) {
+					top.color = "black";
+					bottom.color = "black";
+					this.drawAnswers(this.answers);
+					this.drawBoxes(this.boxes);
+				}
+				
+			}
+		}
+		
+	}
+	
+	//Boxes that CAN change color per user input.
+	class PlayerBox {
+		constructor(color, index) {
+			this.color = color;
+			this.index = index;
+		}
+	}
+	
+	//Boxes that CAN NOT be changed per user input.
+	class AnswerBox {
+		constructor(color, index) {
+			this.color = color;
+			this.index = index;
+		}
+	}
+	
+	game = new Game()
+	
+	
+	
+</script>
 </body>
-
 </html>
